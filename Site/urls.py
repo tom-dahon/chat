@@ -19,8 +19,9 @@ from django.urls import path
 from Chat import views
 
 urlpatterns = [
+    path('', views.index, name='index'),
+    path('accounts/', include('Chat.authurls')),
     path('accounts/', include('django.contrib.auth.urls')),
-    path('login/', views.login, name='login'),
     path('Chat/', include('Chat.urls')),
     path('admin/', admin.site.urls),
 ]

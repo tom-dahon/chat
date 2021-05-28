@@ -57,7 +57,7 @@ ROOT_URLCONF = 'Site.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [str(BASE_DIR.joinpath('Chat/templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -135,3 +135,9 @@ CHANNEL_LAYERS = {
         },
     },
 }
+LOGIN_REDIRECT_URL = '/Chat/'
+LOGOUT_REDIRECT_URL = '/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]

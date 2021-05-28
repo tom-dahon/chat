@@ -1,17 +1,51 @@
-<!-- chat/templates/chat/room.html -->
-<!DOCTYPE html>
+{% load static %}
 <html>
 <head>
-    <meta charset="utf-8"/>
-    <title>Salle de discussion</title>
+<title>Chat</title>
+    <!-- chat/templates/chat/room.html -->
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" type="text/css" rel="stylesheet">
+    <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+    <link href="{% static 'style.css' %}"  type="text/css" rel="stylesheet">
 </head>
-<body>
-    <textarea id="chat-log" cols="100" rows="20"></textarea><br>
-    <input id="chat-message-input" type="text" size="100"><br>
-    <input id="chat-message-submit" type="button" value="Envoyer">
-    {{ room_name|json_script:"room-name" }}
+<body class="">
+<div class="p-5">
+<h3 class=" text-center text-3xl my-5">Chat</h3>
+<div class="mx-auto border-2" style="width: 500px;">
+        <div class="mesgs" >
+          <div class="msg_history p-5" id="chat-log">
+          </div>
+          <div class="type_msg ">
+            <div class="input_msg_write ">
+              <input type="text" id="chat-message-input" class="write_msg " placeholder="Ecrire un message" />
+              <button class="msg_send_btn" id="chat-message-submit" type="button"><i class="fa fa-paper-plane-o" aria-hidden="true"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+
+{{ room_name|json_script:"room-name" }}
+ <script type="text/javascript">
+
+      let messages = {{ messages | safe }}
+
+    window.onload = function () {
+
+        for (var index in messages) {
+             bulleMessage(messages[index]);
+            document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
+}       };
+
+
+
+
+      </script>
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        username = {{ username }};
 
         const chatSocket = new WebSocket(
             'ws://'
@@ -23,7 +57,8 @@
 
         chatSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#chat-log').value += (data.message + '\n');
+            bulleMessage(data);
+            document.getElementById('chat-log').scrollTop = document.getElementById('chat-log').scrollHeight;
         };
 
         chatSocket.onclose = function(e) {
@@ -41,10 +76,37 @@
             const messageInputDom = document.querySelector('#chat-message-input');
             const message = messageInputDom.value;
             chatSocket.send(JSON.stringify({
-                'message': message
+                'message': message,
+                'auteur': username
             }));
             messageInputDom.value = '';
         };
+
+        function bulleMessage(data) {
+            let chatDiv = document.querySelector('#chat-log');
+            let listeBalises = document.createElement('div');
+            let div1 = document.createElement('div');
+            let div2 = document.createElement('div');
+            let pBalise = document.createElement('p');
+            pBalise.textContent = data.message
+
+            if (data.auteur === username) {
+                listeBalises.className = 'outgoing_msg';
+                div1.className = 'sent_msg';
+                div1.appendChild(pBalise)
+                listeBalises.appendChild(div1);
+            }else{
+                listeBalises.className = 'incoming_msg';
+                div1.className = 'received_msg';
+                div2.className = 'received_withd_msg';
+                div1.appendChild(div2)
+                div2.appendChild(pBalise)
+                listeBalises.appendChild(div1);
+            }
+            chatDiv.appendChild(listeBalises);
+        }
+
+
     </script>
 </body>
 </html>
